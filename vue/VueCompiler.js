@@ -260,6 +260,23 @@ export default class VueCompiler {
     return path.join(this.workingDir, this.cacheDir);
   }
 
+  // Common parent of the input, includes, and layouts directories
+  getPreserveModulesRoot() {
+    let [first, ...rest] = [this.inputDir, this.includesDir, this.layoutsDir].filter(Boolean).map(dir => path.resolve(dir).split(path.sep));
+    if(!first) {
+      return;
+    }
+    let length = first.length;
+    for(let parts of rest) {
+      let i = 0;
+      while(i < length && parts[i] === first[i]) {
+        i++;
+      }
+      length = i;
+    }
+    return first.slice(0, length).join(path.sep) || path.sep;
+  }
+
   isIncludeFile(filepath) {
     return isInsideDirectory(filepath, this.includesDir);
   }
@@ -347,7 +364,11 @@ export default class VueCompiler {
       throw new Error("Eleventy Vue Plugin: write(bundle) needs a bundle argument.");
     }
 
-    let { output } = await bundle[rollupMethod](this.rollupBundleOptions);
+    let { output } = await bundle[rollupMethod]({
+      // Rollup names modules relative to the inputs’ common directory, which shifts for subset (watch) builds
+      preserveModulesRoot: this.getPreserveModulesRoot(),
+      ...this.rollupBundleOptions,
+    });
 
     output = output.filter(entry => !!entry.facadeModuleId);
 

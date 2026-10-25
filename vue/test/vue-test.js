@@ -452,3 +452,26 @@ test("Rollup output cache is validated against source files and options (plugin-
 	await fs.promises.appendFile(path.join(src, "_includes/child.vue"), "\n");
 	assert.equal(await getCompiler().isRollupOutputCacheValid(files), false);
 });
+
+test("Adding a <style> to an imported child on watch adds its CSS to the parent", async () => {
+	let src = "vue/.cache/watch-css-src";
+	await fs.promises.rm(src, { recursive: true, force: true });
+	await fs.promises.rm("vue/.cache/watch-css", { recursive: true, force: true });
+	await fs.promises.mkdir(path.join(src, "_includes"), { recursive: true });
+	await fs.promises.writeFile(path.join(src, "index.vue"), `<template><post /></template><script>import Post from "./_includes/Post.vue"; export default { components: { Post } };</script>`);
+	await fs.promises.writeFile(path.join(src, "_includes/Post.vue"), `<template><p>Post</p></template>`);
+
+	let ev = new VueCompiler();
+	ev.setCacheDir("vue/.cache/watch-css");
+	ev.setInputDir(src);
+	ev.setIncludesDir("_includes");
+	ev.createVueComponents(await ev.write(await ev.getBundle(await ev.findFiles())));
+	assert.deepEqual(ev.getCSSForComponentTree(`./${src}/index.vue`), []);
+
+	await fs.promises.appendFile(path.join(src, "_includes/Post.vue"), `<style>p { color: red; }</style>`);
+	ev.clearRequireCache();
+	ev.createVueComponents(await ev.write(await ev.getBundle([`./${src}/_includes/Post.vue`], true)));
+	let styles = ev.getCSSForComponentTree(`./${src}/index.vue`);
+	assert.equal(styles.length, 1);
+	assert.match(styles[0], /color: red/);
+});
