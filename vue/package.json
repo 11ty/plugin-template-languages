@@ -1,6 +1,6 @@
 {
 	"name": "@11ty/eleventy-plugin-vue",
-	"version": "2.0.0-alpha.1",
+	"version": "2.0.0-alpha.2",
 	"description": "Use Vue 3 Single File Components (SFC) in Eleventy.",
 	"main": "vueConfig.js",
 	"exports": {
