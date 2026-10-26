@@ -171,6 +171,29 @@ test("Rune modules (.svelte.js)", async () => {
 	assert.equal(body, "<p>3</p>");
 });
 
+test("Hydration markers are removed", async () => {
+	let { sc } = await build("markers");
+	let component = await sc.getComponent("./svelte/test/stubs-markers/index.svelte");
+	for (let [n, text] of [[1, "one"], [2, "two"], [3, "other"]]) {
+		let { body } = await sc.renderComponent(component, { n });
+		assert.doesNotMatch(body, /<!--/);
+		assert.match(body, new RegExp(`^<div id="s1"><p>${text}</p><i>1</i><i>2</i></div>$`));
+	}
+});
+
+test("Recursive components don’t warn about circular dependencies", async () => {
+	let warnings = [];
+	let { sc } = await build("recursive");
+	let { body } = await sc.renderComponent(await sc.getComponent("./svelte/test/stubs-recursive/index.svelte"), {});
+	assert.equal(body, "<ul><li>a<ul><li>b</li></ul></li></ul>");
+
+	let { onwarn } = sc.getMergedRollupOptions([]);
+	onwarn({ code: "CIRCULAR_DEPENDENCY", ids: ["a.svelte", "a.svelte"] }, (w) => warnings.push(w));
+	assert.equal(warnings.length, 0);
+	onwarn({ code: "CIRCULAR_DEPENDENCY", ids: ["a.svelte", "b.svelte", "a.svelte"] }, (w) => warnings.push(w));
+	assert.equal(warnings.length, 1);
+});
+
 test("Template strings", async () => {
 	let sc = new SvelteCompiler();
 	let { mod, css } = await sc.getComponentFromString(`<script>let { name } = $props();</script><b>{name}</b><style>b { color: red; }</style>`);

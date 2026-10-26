@@ -37,8 +37,8 @@ test("Svelte pagination via Eleventy", async function () {
 	deepStrictEqual(
 		results.map(({ url, content }) => ({ url, content })),
 		[
-			{ url: "/page-0/", content: "<ul><li>a</li><li>b</li></ul>" },
-			{ url: "/page-1/", content: "<ul><li>c</li><li>d</li></ul>" },
+			{ url: "/page-0/", content: "<!--[--><ul><!--[--><li>a</li><li>b</li><!--]--></ul><!--]-->" },
+			{ url: "/page-1/", content: "<!--[--><ul><!--[--><li>c</li><li>d</li><!--]--></ul><!--]-->" },
 		],
 	);
 });
@@ -72,20 +72,20 @@ test("configureContext option", async function () {
 			context.set("site", { url: "https://www.11ty.dev/" });
 		},
 	}).toJSON();
-	strictEqual(result.content, `<p>https://www.11ty.dev/</p>`);
+	strictEqual(result.content, `<!--[--><p>https://www.11ty.dev/</p><!--]-->`);
 	deepStrictEqual(calls, ["/"]);
 });
 
 test("Svelte as a layout file", async function () {
 	let results = (await getEleventy("stubs-layout").toJSON()).sort((a, b) => a.url.localeCompare(b.url));
 	deepStrictEqual(results.map(({ url }) => url), ["/", "/svelte-page/"]);
-	match(results[0].content, /^<!doctype html><title>Hello<\/title><style>main\.svelte-\w+ \{ color: rebeccapurple; \}<\/style><main data-title="Hello" class="svelte-\w+"><h1>Markdown content<\/h1>\n<\/main>\n$/);
+	match(results[0].content, /^<!doctype html><title>Hello<\/title><style>main\.svelte-\w+ \{ color: rebeccapurple; \}<\/style><!--\[--><main data-title="Hello" class="svelte-\w+"><!----><h1>Markdown content<\/h1>\n<!----><\/main><!--\]-->\n$/);
 	match(results[1].content, /^<!doctype html><title>Svelte page<\/title><style>main\.svelte-\w+ \{ color: rebeccapurple; \}<\/style><main data-title="Svelte page" class="svelte-\w+"><p>Svelte page content<\/p><\/main>\n$/);
 });
 
 test("<svelte:head> goes to the head bundle and filters are available via context", async function () {
 	let [result] = await getEleventy("stubs-head").toJSON();
-	strictEqual(result.content, `<head><meta name="description" content="Svelte"></head><a href="/about/">About</a>\n`);
+	match(result.content, /^<head><!--\w+--><meta name="description" content="Svelte"><!----><\/head><!--\[--><a href="\/about\/">About<\/a><!--\]-->\n$/);
 });
 
 test("Unchanged components skip rollup on the next build", async function () {

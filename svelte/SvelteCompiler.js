@@ -25,12 +25,6 @@ const SVELTE_MODULE_REGEX = /\.svelte\.[cm]?[jt]s$/;
 // Matches `svelte` and `svelte/*` import specifiers in compiled output
 const SVELTE_IMPORT_REGEX = /(["'])(svelte(?:\/[^"']*)?)\1/g;
 
-// Hydration markers (`<!--[-->`, `<!--[!-->`, `<!--]-->`, `<!---->`) are unused without client JavaScript
-const HYDRATION_MARKER_REGEX = /<!--(?:\[!?|\])?-->/g;
-
-// `<svelte:head>` content is wrapped in `<!--hash-->…<!---->`
-const HEAD_MARKER_REGEX = /<!--[a-z0-9]+-->/g;
-
 // Components must share the plugin’s Svelte runtime (context, renderer state), so its imports resolve to absolute URLs
 function resolveSvelteImport(id) {
   return import.meta.resolve(id);
@@ -211,6 +205,9 @@ export default class SvelteCompiler {
       onwarn (warning, warn) {
         if(warning.code === "UNUSED_EXTERNAL_IMPORT") {
           debug("Unused external import: %O", warning);
+        } else if(warning.code === "CIRCULAR_DEPENDENCY" && warning.ids?.length === 2 && warning.ids[0] === warning.ids[1]) {
+          // Recursive components import themselves
+          debug("Self-import: %O", warning.ids[0]);
         } else {
           warn(warning);
         }
@@ -664,9 +661,6 @@ export default class SvelteCompiler {
       props: { ...data },
       context,
     });
-    return {
-      head: head.replace(HEAD_MARKER_REGEX, "").replace(HYDRATION_MARKER_REGEX, ""),
-      body: body.replace(HYDRATION_MARKER_REGEX, ""),
-    };
+    return { head, body };
   }
 }
