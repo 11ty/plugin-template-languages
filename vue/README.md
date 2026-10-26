@@ -18,7 +18,7 @@ npm install @11ty/eleventy-plugin-vue
 
 ### Changelog
 
-* `2.0.0` Requires Eleventy v3 and Node.js 22. Renames the `EleventyVue` export to `VueCompiler`. Component CSS moves to Eleventy’s `css` bundle: the `assets` option, `getVueComponentCssForPage` filter, and `@11ty/eleventy-assets` dependency were removed. Documents `.vue` layout support. Reuses compiled components across builds when nothing changed.
+* `2.0.0` Requires Eleventy v3 and Node.js 22. Renames the `EleventyVue` export to `VueCompiler`. Component CSS moves to Eleventy’s `css` bundle.
 * `1.0.0` ([Milestone](https://github.com/11ty/eleventy-plugin-vue/milestone/6?closed=1)) Works with Vue 3. Adds Windows support.
 * `0.6.x` ([Milestone](https://github.com/11ty/eleventy-plugin-vue/milestone/5?closed=1))
 * `0.3.1` ([Milestone](https://github.com/11ty/eleventy-plugin-vue/milestone/4?closed=1))
