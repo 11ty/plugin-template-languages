@@ -46,7 +46,7 @@
 		"compatibility": ">=3.0.0"
 	},
 	"dependencies": {
-		"@11ty/eleventy-utils": "^2.0.7",
+		"@11ty/eleventy-utils": "^3.0.1",
 		"obug": "^3.0.0",
 		"rollup": "^4.64.10",
 		"svelte": "^5.57.2",
