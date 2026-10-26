@@ -1,8 +1,6 @@
-<p align="center"><img src="https://www.11ty.dev/img/logo-github.svg" width="200" height="200" alt="eleventy Logo"></p>
+# Svelte 5 Plugin for Build Awesome and Eleventy
 
-# eleventy-plugin-svelte for Svelte 5 🕚⚡️🎈🐀
-
-Adds Svelte component support to Eleventy. Eleventy processes `.svelte` files as Eleventy templates and outputs zero-bundle size server rendered components.
+Adds Svelte component support to Build Awesome and Eleventy, processing `.svelte` files as templates. Outputs zero-bundle size server rendered components.
 
 ## Installation
 
@@ -132,10 +130,3 @@ To import Svelte component libraries from `node_modules`, add [`@rollup/plugin-n
   h1 { color: rebeccapurple; }
 </style>
 ```
-
-### Migrating from `eleventy-plugin-svelte`
-
-* Svelte 5 is required.
-* Pages use `.svelte` instead of `.11ty.svelte`. Components in the includes directory are not rendered as pages.
-* Use `{% getBundle "css" %}` and `{% getBundle "head" %}` instead of `content.css` and `content.head`.
-* Client-side hydration (`svelteClient`, `svelteData`, `dataFn`) is not supported.
