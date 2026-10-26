@@ -73,7 +73,6 @@ export default function(eleventyConfig, configGlobalOptions = {}) {
   // Default output
   let isVerboseMode = true;
   eleventyConfig.on("eleventy.config", config => {
-    // Available in 1.0.0-beta.6+
     if(config.verbose !== undefined) {
       isVerboseMode = config.verbose;
     }
@@ -86,15 +85,13 @@ export default function(eleventyConfig, configGlobalOptions = {}) {
     }
   });
 
-  // `beforeWatch` is available on Eleventy 0.11.0 and newer
-  eleventyConfig.on("beforeWatch", (changedFiles) => {
-    let hasChangedFiles = changedFiles && changedFiles.length > 0;
+  eleventyConfig.on("beforeWatch", (changedFiles = []) => {
+    let hasChangedFiles = changedFiles.length > 0;
 
-    // `changedFiles` array argument is available on Eleventy 0.11.1+
-    changedVueFilesOnWatch = (changedFiles || []).filter(file => file.endsWith(".vue"));
+    changedVueFilesOnWatch = changedFiles.filter(file => file.endsWith(".vue"));
 
     // A changed non-.vue module imported by a component (e.g. `.js` or `.css`) needs a full rebuild
-    let hasChangedDependency = (changedFiles || []).some(file => !file.endsWith(".vue") && vueCompiler.watchFiles.has(path.resolve(file)));
+    let hasChangedDependency = changedFiles.some(file => !file.endsWith(".vue") && vueCompiler.watchFiles.has(path.resolve(file)));
 
     if(hasChangedDependency) {
       changedVueFilesOnWatch = [];
@@ -114,11 +111,7 @@ export default function(eleventyConfig, configGlobalOptions = {}) {
 
   eleventyConfig.addExtension("vue", {
     read: false, // We use rollup to read the files
-    getData: [ // get data from both the data function and serverPrefetch
-      "data",
-      // including this by default is bad because a lot of async data fetching happens here!
-      // "serverPrefetch"
-    ],
+    getData: ["data"],
     getInstanceFromInputPath: function(inputPath) {
       return vueCompiler.getComponent(inputPath);
     },

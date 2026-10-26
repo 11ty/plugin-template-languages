@@ -9,20 +9,12 @@ Read more about the goals of this plugin (and a full tutorial!) at [Eleventy and
 ## Installation
 
 ```sh
-# Prelease (Vue 3 or newer)
-npm install @11ty/eleventy-plugin-vue@canary
-
-# Latest (Vue 2)
 npm install @11ty/eleventy-plugin-vue
 ```
 
-* `2.x` requires Eleventy `3.0.0` or newer and Node.js 22 or newer
-* `1.x` requires Eleventy `1.0.0` or newer
-* `0.2.x` encouraged to use Eleventy `0.11.1` or newer (for incremental Vue component builds)
-* `0.1.x` requires Eleventy `0.11.0` or newer
-<!--
-* `0.0.x` requires Eleventy 0.11.0 Beta 2 or above (`0.11.0-beta.2`)
--->
+* `2.x` requires Eleventy `3.0.0` or newer, Vue 3, and Node.js 22 or newer
+* `1.x` requires Eleventy `1.0.0` or newer and Vue 3
+* `0.x` uses Vue 2
 
 ### Changelog
 
@@ -131,9 +123,7 @@ For a full list of `rollupPluginVueOptions`, see [`rollup-plugin-vue`’s Option
 
 #### Advanced: Run async things before component render
 
-_Available with Eleventy 1.0+ and Eleventy Vue Plugin 0.6+_
-
-Use [`serverPrefetch`](https://ssr.vuejs.org/guide/data.html) to tell the component to do a few async things before it renders the component.
+Use [`serverPrefetch`](https://vuejs.org/api/options-lifecycle.html#serverprefetch) to tell the component to do a few async things before it renders the component.
 
 Below is an example of a Vue template that uses [the Eleventy Render Plugin](https://11ty.dev/docs/plugins/render/) to render Markdown (either in an external file or a string).
 
@@ -150,12 +140,3 @@ export default {
 }
 </script>
 ```
-
-<!-- ## Relevant Links
-
-* https://ssr.vuejs.org/
-* https://vuejs.org/v2/guide/single-file-components.html
-* https://vue-loader.vuejs.org/guide/scoped-css.html
-* https://rollup-plugin-vue.vuejs.org/
-* https://rollupjs.org/guide/en/ -->
-<!-- https://github.com/tj/consolidate.js/ -->

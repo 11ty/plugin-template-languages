@@ -188,9 +188,7 @@ export default class VueCompiler {
     return DeepCopy({
       target: "node",
       exposeFilename: true,
-      // preprocessStyles: false, // false is default
-      // compilerOptions: {} // https://github.com/vuejs/vue/tree/dev/packages/vue-template-compiler#options
-    }, this.rollupPluginVueOptions);
+    },this.rollupPluginVueOptions);
   }
 
   resetIgnores(extraIgnores = []) {
@@ -222,8 +220,7 @@ export default class VueCompiler {
 
   setIncludesDir(includesDir) {
     if(includesDir) {
-      // Was: path.join(this.workingDir, includesDir);
-      // Which seems wrong? per https://www.11ty.dev/docs/config/#directory-for-includes
+      // Relative to the input directory
       this.rawIncludesDir = includesDir;
       this.includesDir = path.join(this.inputDir, includesDir);
     }
@@ -699,10 +696,9 @@ export default class VueCompiler {
   }
 
   async renderComponent(vueComponent, pageData, mixin = {}) {
-    // console.log( pageData );
     const app = createSSRApp(vueComponent);
     // Allow `page` to be accessed inside any Vue component
-    // https://v3.vuejs.org/api/application-config.html#globalproperties
+    // https://vuejs.org/api/application.html#app-config-globalproperties
     app.config.globalProperties.page = pageData.page;
 
     // Read-only fallback so child components can reach cascade data (e.g. `eleventy`)
