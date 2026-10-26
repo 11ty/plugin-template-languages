@@ -80,7 +80,7 @@ test("Svelte as a layout file", async function () {
 	let results = (await getEleventy("stubs-layout").toJSON()).sort((a, b) => a.url.localeCompare(b.url));
 	deepStrictEqual(results.map(({ url }) => url), ["/", "/svelte-page/"]);
 	match(results[0].content, /^<!doctype html><title>Hello<\/title><style>main\.svelte-\w+ \{ color: rebeccapurple; \}<\/style><!--\[--><main data-title="Hello" class="svelte-\w+"><!----><h1>Markdown content<\/h1>\n<!----><\/main><!--\]-->\n$/);
-	match(results[1].content, /^<!doctype html><title>Svelte page<\/title><style>main\.svelte-\w+ \{ color: rebeccapurple; \}<\/style><main data-title="Svelte page" class="svelte-\w+"><p>Svelte page content<\/p><\/main>\n$/);
+	match(results[1].content, /^<!doctype html><title>Svelte page<\/title><style>main\.svelte-\w+ \{ color: rebeccapurple; \}<\/style><!--\[--><main data-title="Svelte page" class="svelte-\w+"><!----><!--\[--><p>Svelte page content<\/p><!--\]--><!----><\/main><!--\]-->\n$/);
 });
 
 test("<svelte:head> goes to the head bundle and filters are available via context", async function () {

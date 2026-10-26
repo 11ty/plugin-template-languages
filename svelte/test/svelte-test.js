@@ -99,7 +99,7 @@ test("Svelte Render", async () => {
 	assert.equal(component.data.test, "HELLO");
 
 	let { body } = await sc.renderComponent(component, { page: { url: "/some-url/" }, test: "HELLO" });
-	assert.match(body, /^<div class="svelte-\w+"><p>\/some-url\/<\/p><p>HELLO<\/p><div id="child" class="svelte-\w+"><div id="grandchild" class="svelte-\w+"><\/div><\/div><\/div>$/);
+	assert.match(body, /^<!--\[--><div class="svelte-\w+"><p>\/some-url\/<\/p><p>HELLO<\/p><div id="child" class="svelte-\w+"><div id="grandchild" class="svelte-\w+"><\/div><!----><\/div><!----><\/div><!--\]-->$/);
 });
 
 test("Svelte Render (one input file)", async () => {
@@ -144,7 +144,7 @@ test("Svelte data doesn’t leak between renders", async () => {
 
 	for (let i = 0; i < 3; i++) {
 		let { body } = await sc.renderComponent(component, data);
-		assert.equal(body, `<div>[{"a":1},{"b":2}]</div>`);
+		assert.equal(body, `<!--[--><div>[{"a":1},{"b":2}]</div><!--]-->`);
 	}
 	assert.deepEqual(Object.keys(data), ["events"]);
 });
@@ -153,14 +153,14 @@ test("Async child components render per instance", async () => {
 	let { sc } = await build("async");
 	let component = await sc.getComponent("./svelte/test/stubs-async/index.svelte");
 	let { body } = await sc.renderComponent(component, { page: { url: "/" }, eleventy: { generator: "Eleventy" } });
-	assert.equal(body, `<div><p>A Eleventy</p><p>B Eleventy</p><p>C Eleventy</p></div>`);
+	assert.equal(body, `<!--[--><div><!--[--><p>A Eleventy</p><p>B Eleventy</p><p>C Eleventy</p><!--]--></div><!--]-->`);
 });
 
 test("Dynamically imported component", async () => {
 	let { sc } = await build("dynamic-import");
 	let component = await sc.getComponent("./svelte/test/stubs-dynamic-import/index.svelte");
 	let { body } = await sc.renderComponent(component, {});
-	assert.match(body, /^<div><p class="svelte-\w+">Dynamic child<\/p><\/div>$/);
+	assert.match(body, /^<!--\[--><div><!--\[--><p class="svelte-\w+">Dynamic child<\/p><!--\]--><\/div><!--\]-->$/);
 	assert.equal(sc.getCSSForComponentTree("./svelte/test/stubs-dynamic-import/index.svelte").length, 1);
 });
 
@@ -168,16 +168,15 @@ test("Rune modules (.svelte.js)", async () => {
 	let { sc } = await build("module");
 	assert.equal(sc.componentsWriteCount, 1);
 	let { body } = await sc.renderComponent(await sc.getComponent("./svelte/test/stubs-module/index.svelte"), {});
-	assert.equal(body, "<p>3</p>");
+	assert.equal(body, "<!--[--><p>3</p><!--]-->");
 });
 
-test("Hydration markers are removed", async () => {
+test("Hydration markers are kept", async () => {
 	let { sc } = await build("markers");
 	let component = await sc.getComponent("./svelte/test/stubs-markers/index.svelte");
-	for (let [n, text] of [[1, "one"], [2, "two"], [3, "other"]]) {
+	for (let [n, text, branch] of [[1, "one", 0], [2, "two", 1], [3, "other", -1]]) {
 		let { body } = await sc.renderComponent(component, { n });
-		assert.doesNotMatch(body, /<!--/);
-		assert.match(body, new RegExp(`^<div id="s1"><p>${text}</p><i>1</i><i>2</i></div>$`));
+		assert.equal(body, `<!--[--><!--$s1--><div id="s1"><!--[${branch}--><p>${text}</p><!--]--><!--[--><i>1</i><i>2</i><!--]--></div><!--]-->`);
 	}
 });
 
@@ -185,7 +184,7 @@ test("Recursive components don’t warn about circular dependencies", async () =
 	let warnings = [];
 	let { sc } = await build("recursive");
 	let { body } = await sc.renderComponent(await sc.getComponent("./svelte/test/stubs-recursive/index.svelte"), {});
-	assert.equal(body, "<ul><li>a<ul><li>b</li></ul></li></ul>");
+	assert.equal(body, "<!--[--><ul><!--[--><li>a<!--[0--><ul><!--[--><li>b<!--[-1--><!--]--></li><!--]--></ul><!--]--></li><!--]--></ul><!--]-->");
 
 	let { onwarn } = sc.getMergedRollupOptions([]);
 	onwarn({ code: "CIRCULAR_DEPENDENCY", ids: ["a.svelte", "a.svelte"] }, (w) => warnings.push(w));
