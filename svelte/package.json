@@ -1,6 +1,6 @@
 {
 	"name": "@11ty/eleventy-plugin-svelte",
-	"version": "1.0.0-alpha.1",
+	"version": "1.0.0",
 	"description": "Use Svelte 5 components in Eleventy.",
 	"main": "svelteConfig.js",
 	"exports": {
